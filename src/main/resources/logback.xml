@@ -9,7 +9,7 @@
         </filter>
     </appender>
 
-    <logger name="io.entraos" level="DEBUG"/>
+    <logger name="io.entraos.monitor" level="trace"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />

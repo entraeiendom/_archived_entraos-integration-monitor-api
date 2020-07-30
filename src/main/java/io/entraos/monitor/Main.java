@@ -29,9 +29,13 @@ public class Main {
 
         try {
             jettyServer.start();
+            String serverUrl = "http://localhost:" + port + "/";
+            log.info("Server started on {}", serverUrl );
+            log.info("Status available on {}status", serverUrl);
             jettyServer.join();
-            log.info("Server started on http://localhost:{}/", port );
+
         } finally {
+            log.info("Shutting down.");
             jettyServer.destroy();
         }
     }
