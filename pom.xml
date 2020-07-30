@@ -64,6 +64,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>no.cantara.config</groupId>
+      <artifactId>simple-microservice-config</artifactId>
+      <version>${microservice.config}</version>
+    </dependency>
+    <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
       <version>2.3.3</version>
