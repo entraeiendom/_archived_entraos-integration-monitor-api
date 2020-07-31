@@ -45,6 +45,7 @@ public class LogonMonitorTest {
                         .withBody("<response>Some content</response>")));
         LogonMonitor logonMonitor = new LogonMonitor(logonUri);
         assertNotNull(logonMonitor);
+        assertNotNull(data);
         HttpResponse response = logonMonitor.postLogon(data);
         assertNotNull(response);
     }
