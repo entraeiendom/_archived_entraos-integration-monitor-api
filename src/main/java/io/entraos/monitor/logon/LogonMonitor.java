@@ -39,7 +39,9 @@ log.info("****jenkins trail");
                 .build();
         HttpResponse<String> response = null;
         try {
+            log.info("****jenkins trail2");
             response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            log.info("****jenkins trail3");
             // print status code
             System.out.println(response.statusCode());
 
