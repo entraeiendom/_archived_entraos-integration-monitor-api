@@ -6,7 +6,7 @@
 
   <groupId>io.entraos.monitor</groupId>
   <artifactId>integration-monitor</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
 
   <name>entraos-integration-monitor</name>
   <url>https://github.com/entraeiendom/entraos-integration-monitor-api</url>
