@@ -46,11 +46,14 @@ log.info("****jenkins trail");
             // print response body
             System.out.println(response.body());
         } catch (IOException e) {
+            log.info("IOException: {}", e);
             e.printStackTrace();
         } catch (InterruptedException e) {
+            log.info("InteruptedException: {}", e);
             e.printStackTrace();
         }
 
+        log.info("***jenkins response: {}", response);
         return response;
     }
 
