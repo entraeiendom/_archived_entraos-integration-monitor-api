@@ -56,6 +56,15 @@ public class LogonMonitorTest {
         assertNotNull(response);
     }
 
+    @Test
+    public void ofFormDataTest() {
+        Map<Object, Object> data = new HashMap<>();
+        data.put("grant_type", " ");
+        data.put("username", "uname");
+        data.put("password", null);
+        assertNotNull(LogonMonitor.ofFormData(data));
+    }
+
     public static void main(String[] args) throws URISyntaxException {
         Map<Object, Object> data = new HashMap<>();
         data.put("grant_type", getProperty("logon_grant_type"));

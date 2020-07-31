@@ -31,9 +31,7 @@ public class LogonMonitor {
      "password=anything"
      */
     public HttpResponse postLogon(Map<Object, Object> body) {
-log.info("****jenkins trail");
         HttpRequest.BodyPublisher bodyPublisher = ofFormData(body);
-        log.info("****jenkins trail1");
         httpRequest = HttpRequest.newBuilder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .uri(logonUri)
@@ -41,9 +39,7 @@ log.info("****jenkins trail");
                 .build();
         HttpResponse<String> response = null;
         try {
-            log.info("****jenkins trail2");
             response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            log.info("****jenkins trail3");
             // print status code
             System.out.println(response.statusCode());
 
@@ -57,20 +53,24 @@ log.info("****jenkins trail");
             e.printStackTrace();
         }
 
-        log.info("***jenkins response: {}", response);
         return response;
     }
 
     public static HttpRequest.BodyPublisher ofFormData(Map<Object, Object> data) {
+        log.trace("Build body string from {}", data);
         var builder = new StringBuilder();
         for (Map.Entry<Object, Object> entry : data.entrySet()) {
             if (builder.length() > 0) {
                 builder.append("&");
             }
-            builder.append(URLEncoder.encode(entry.getKey().toString(), StandardCharsets.UTF_8));
-            builder.append("=");
-            builder.append(URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
+            if (data.get(entry.getKey()) != null) {
+                builder.append(URLEncoder.encode(entry.getKey().toString(), StandardCharsets.UTF_8));
+                builder.append("=");
+                builder.append(URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
+            }
         }
-        return HttpRequest.BodyPublishers.ofString(builder.toString());
+        HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.ofString(builder.toString());
+        log.trace("Built publisher: {}", bodyPublisher);
+        return bodyPublisher;
     }
 }
