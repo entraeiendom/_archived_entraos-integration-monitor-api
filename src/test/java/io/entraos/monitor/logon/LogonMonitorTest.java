@@ -45,14 +45,8 @@ public class LogonMonitorTest {
                         .withBody("<response>Some content</response>")));
         LogonMonitor logonMonitor = new LogonMonitor(logonUri);
         assertNotNull(logonMonitor);
-        assertNotNull(data);
-        HttpResponse response;
-        if (logonMonitor != null) {
-            log.info("Why is this failing on Jenkins?. Logon Monitor {}", logonMonitor);
-            response = logonMonitor.postLogon(data);
-        } else {
-            response = new LogonMonitor(logonUri).postLogon(data);
-        }
+        assertNotNull(LogonMonitor.ofFormData(data));
+        HttpResponse response = logonMonitor.postLogon(data);
         assertNotNull(response);
     }
 
