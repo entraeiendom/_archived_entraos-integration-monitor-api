@@ -37,7 +37,7 @@ public class LogonMonitorTest {
         data.put("grant_type", getProperty("logon_grant_type"));
         data.put("username", getProperty("logon_username"));
         data.put("password", getProperty("logon_password"));
-        stubFor(post(urlEqualTo("/logon"))
+        wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
                 .willReturn(aResponse()
                         .withStatus(200)
