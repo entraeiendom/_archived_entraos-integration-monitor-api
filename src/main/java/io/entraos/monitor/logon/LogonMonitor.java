@@ -31,7 +31,7 @@ public class LogonMonitor {
      "password=anything"
      */
     public HttpResponse postLogon(Map<Object, Object> body) {
-
+log.info("****jenkins trail");
         httpRequest = HttpRequest.newBuilder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .uri(logonUri)
