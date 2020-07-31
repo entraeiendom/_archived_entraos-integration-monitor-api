@@ -1,17 +1,32 @@
 package io.entraos.monitor.status;
+
+import io.entraos.monitor.MonitorService;
+
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+@Singleton
 @Path("status")
 public class StatusResource {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StatusResource.class);
 
+    private final MonitorService monitorService;
+
+    public StatusResource() {
+        monitorService = new MonitorService();
+    }
+
+    public StatusResource(MonitorService monitorService) {
+        this.monitorService = monitorService;
+    }
+
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public String getMessage() {
 
-        return "My message\n";
+        return monitorService.toJson();
     }
 }

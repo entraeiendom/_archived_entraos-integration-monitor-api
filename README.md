@@ -21,3 +21,13 @@ Will send alert to Slack
 ## Configuration
 
 Use environment variables or edit local_config.properties.
+
+```
+environment=dev
+service_name=local-test
+
+logon_uri=http://logon.example.com:8080/logon
+logon_grant_type=password
+logon_username=someone
+logon_password=anyting
+```

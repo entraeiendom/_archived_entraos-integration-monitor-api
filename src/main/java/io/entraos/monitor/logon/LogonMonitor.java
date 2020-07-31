@@ -1,5 +1,6 @@
 package io.entraos.monitor.logon;
 
+import io.entraos.monitor.IntegrationMonitor;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -9,11 +10,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
+import static no.cantara.config.ServiceConfig.getProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class LogonMonitor {
+public class LogonMonitor implements IntegrationMonitor {
     private static final Logger log = getLogger(LogonMonitor.class);
     protected HttpClient client;
     private HttpRequest httpRequest;
@@ -24,12 +27,22 @@ public class LogonMonitor {
         client = HttpClient.newBuilder().build();
     }
 
+    @Override
+    public void connect() {
+        Map<Object, Object> data = new HashMap<>();
+        data.put("grant_type", getProperty("logon_grant_type"));
+        data.put("username", getProperty("logon_username"));
+        data.put("password", getProperty("logon_password"));
+        HttpResponse response = postLogon(data);
+        log.trace("Data: {}, Response: {}");
+    }
+
     /*
-    Eg:
-    "grant_type=password"
-     "username=baardl-test"
-     "password=anything"
-     */
+        Eg:
+        "grant_type=password"
+         "username=baardl-test"
+         "password=anything"
+         */
     public HttpResponse postLogon(Map<Object, Object> body) {
         HttpRequest.BodyPublisher bodyPublisher = ofFormData(body);
         httpRequest = HttpRequest.newBuilder()
