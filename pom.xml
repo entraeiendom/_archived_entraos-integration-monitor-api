@@ -57,7 +57,7 @@
   </properties>
 
   <scm>
-    <developerConnection>scm:git:ssh://git@github.com:entraeiendom/entraos-integration-monitor-api.git</developerConnection>
+    <developerConnection>scm:git:ssh://git@github.com/entraeiendom/entraos-integration-monitor-api.git</developerConnection>
     <connection>scm:git:https://github.com/entraeiendom/entraos-integration-monitor-api.git</connection>
     <url>https://github.com/entraeiendom/entraos-integration-monitor-api.git</url>
   </scm>
