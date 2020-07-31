@@ -48,6 +48,7 @@ class LogonMonitorTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody("<response>Some content</response>")));
         LogonMonitor logonMonitor = new LogonMonitor(logonUri);
+        assertNotNull(logonMonitor);
         HttpResponse response = logonMonitor.postLogon(data);
         assertNotNull(response);
     }
