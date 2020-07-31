@@ -32,10 +32,12 @@ public class LogonMonitor {
      */
     public HttpResponse postLogon(Map<Object, Object> body) {
 log.info("****jenkins trail");
+        HttpRequest.BodyPublisher bodyPublisher = ofFormData(body);
+        log.info("****jenkins trail1");
         httpRequest = HttpRequest.newBuilder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .uri(logonUri)
-                .POST(ofFormData(body))
+                .POST(bodyPublisher)
                 .build();
         HttpResponse<String> response = null;
         try {
