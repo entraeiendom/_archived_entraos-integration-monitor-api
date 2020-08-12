@@ -30,7 +30,7 @@ public class MonitorService {
 
 
     public MonitorService() {
-        this.environment = getProperty("environment");
+        this.environment = Configuration.getString("environment");//getProperty("environment");
         this.serviceName = getProperty("service_name");
 
         URI logonUri = URI.create(getProperty("logon_uri"));
