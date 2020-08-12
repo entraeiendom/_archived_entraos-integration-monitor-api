@@ -1,6 +1,7 @@
 package io.entraos.monitor.status;
 
 import io.entraos.monitor.MonitorService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -15,6 +16,7 @@ public class StatusResource {
 
     private final MonitorService monitorService;
 
+    @Autowired
     public StatusResource() {
         monitorService = new MonitorService();
     }

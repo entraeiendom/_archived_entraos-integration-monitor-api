@@ -1,13 +1,16 @@
 package io.entraos.monitor;
 
+import io.entraos.monitor.logon.LogonMonitor;
+import io.entraos.monitor.scheduler.ScheduledMonitorManager;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
-import javax.inject.Singleton;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Enumeration;
@@ -16,7 +19,7 @@ import java.util.Properties;
 import static no.cantara.config.ServiceConfig.getProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Singleton
+@Service
 public class MonitorService {
     private static final Logger log = getLogger(MonitorService.class);
     private final String environment;
@@ -29,6 +32,11 @@ public class MonitorService {
     public MonitorService() {
         this.environment = getProperty("environment");
         this.serviceName = getProperty("service_name");
+
+        URI logonUri = URI.create(getProperty("logon_uri"));
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri);
+        ScheduledMonitorManager scheduler = new ScheduledMonitorManager(logonMonitor);
+        scheduler.startScheduledMonitor();
     }
     public MonitorService(String environment, String serviceName) {
         this.environment = environment;
