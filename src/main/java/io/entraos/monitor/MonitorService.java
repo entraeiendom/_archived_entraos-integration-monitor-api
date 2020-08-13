@@ -102,7 +102,7 @@ public class MonitorService {
 
     protected String getVersion() {
         Properties mavenProperties = new Properties();
-        String resourcePath = "/META-INF/maven/io.entraos.idun/idun-2-timeseries/pom.properties";
+        String resourcePath = "/META-INF/maven/io.entraos.monitor/integration-monitor/pom.properties";
 
         URL mavenVersionResource = MonitorService.class.getResource(resourcePath);
         if (mavenVersionResource != null) {
