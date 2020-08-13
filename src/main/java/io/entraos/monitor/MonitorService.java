@@ -5,6 +5,7 @@ import io.entraos.monitor.scheduler.ScheduledMonitorManager;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Singleton;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import java.io.IOException;
@@ -19,32 +20,40 @@ import java.util.Properties;
 import static no.cantara.config.ServiceConfig.getProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@Singleton
 @Service
 public class MonitorService {
     private static final Logger log = getLogger(MonitorService.class);
     private final String environment;
     private final String serviceName;
     private final Instant startedAt = Instant.now();
-    private Instant lastSuccessfullLogon = null;
+    private final ScheduledMonitorManager scheduler;
+    private Instant lastSuccessfulLogon = null;
     private Instant lastFailedLogon = null;
 
 
     public MonitorService() {
-        this.environment = Configuration.getString("environment");//getProperty("environment");
-        this.serviceName = getProperty("service_name");
+        this(Configuration.getString("environment"), getProperty("service_name"));
 
-        URI logonUri = URI.create(getProperty("logon_uri"));
-        LogonMonitor logonMonitor = new LogonMonitor(logonUri);
-        ScheduledMonitorManager scheduler = new ScheduledMonitorManager(logonMonitor);
-        scheduler.startScheduledMonitor();
     }
     public MonitorService(String environment, String serviceName) {
         this.environment = environment;
         this.serviceName = serviceName;
+        URI logonUri = URI.create(getProperty("logon_uri"));
+        log.warn("Creating MonitorService for url: {}", logonUri);
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri);
+        scheduler = new ScheduledMonitorManager(logonMonitor);
+        scheduler.startScheduledMonitor();
     }
 
-    public void setLastSuccessfullLogon(Instant lastSuccessfullLogon) {
-        this.lastSuccessfullLogon = lastSuccessfullLogon;
+    MonitorService(String environment, String serviceName, ScheduledMonitorManager scheduledMonitorManager) {
+        this.environment = environment;
+        this.serviceName = serviceName;
+        this.scheduler = scheduledMonitorManager;
+    }
+
+    public void setLastSuccessfulLogon(Instant lastSuccessfulLogon) {
+        this.lastSuccessfulLogon = lastSuccessfulLogon;
     }
 
     public void setLastFailedLogon(Instant lastFailedLogon) {
@@ -52,6 +61,8 @@ public class MonitorService {
     }
 
     public String toJson() {
+        updateLastSuccessful();
+        updateLastFailed();
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
                 .add("environment", environment)
                 .add("name", serviceName)
@@ -59,24 +70,34 @@ public class MonitorService {
                 .add("version", getVersion())
                 .add("now", Instant.now().toString())
                 .add("startedAt", startedAt.toString());
-        if (lastSuccessfullLogon != null) {
-            jsonBuilder.add("lastSuccessfullLogon", lastSuccessfullLogon.toString());
+        if (lastSuccessfulLogon != null) {
+            jsonBuilder.add("lastSuccessfullLogon", lastSuccessfulLogon.toString());
         }
         if (lastFailedLogon != null) {
             jsonBuilder.add("lastFailedLogon", lastFailedLogon.toString());
         }
-        if (lastSuccessfullLogon != null) {
+        if (lastSuccessfulLogon != null) {
             if (lastFailedLogon == null) {
                 jsonBuilder.add("status", "ok");
-            } else if (lastFailedLogon.isAfter(lastSuccessfullLogon)) {
+            } else if (lastFailedLogon.isAfter(lastSuccessfulLogon)) {
                 jsonBuilder.add("status", "failed");
-            } else if (lastFailedLogon.isBefore(lastSuccessfullLogon)) {
+            } else if (lastFailedLogon.isBefore(lastSuccessfulLogon)) {
                 jsonBuilder.add("status", "ok");
             }
         } else {
             jsonBuilder.add("status", "unknown");
         }
         return jsonBuilder.build().toString();
+    }
+
+    void updateLastSuccessful() {
+        Instant lastSuccessfulConnect = scheduler.getLastSuccessfulConnect();
+        this.lastSuccessfulLogon = lastSuccessfulConnect;
+    }
+
+    void updateLastFailed() {
+        Instant lastFailedConnect = scheduler.getLastFailedConnect();
+        this.lastFailedLogon = lastFailedConnect;
     }
 
     protected String getVersion() {
@@ -128,7 +149,7 @@ public class MonitorService {
                 "environment='" + environment + '\'' +
                 ", serviceName='" + serviceName + '\'' +
                 ", startedAt=" + startedAt +
-                ", lastSuccessfullLogon=" + lastSuccessfullLogon +
+                ", lastSuccessfullLogon=" + lastSuccessfulLogon +
                 ", lastFailedLogon=" + lastFailedLogon +
                 '}';
     }

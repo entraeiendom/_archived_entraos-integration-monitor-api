@@ -34,6 +34,12 @@ public class LogonMonitor implements IntegrationMonitor {
         data.put("username", getProperty("logon_username"));
         data.put("password", getProperty("logon_password"));
         HttpResponse response = postLogon(data);
+        if (response != null && response.statusCode() == 200) {
+            //FIXME need to tell if reason to failure was HostNotFound or username/pw failed.
+            log.trace("Connected ok.");
+        } else if (response != null) {
+            throw new IllegalStateException("Connect to " + logonUri + " failed. HttpCode: " + response.statusCode() + ". Body: " + response.body());
+        }
         log.trace("Data: {}, Response: {}");
     }
 
@@ -53,11 +59,7 @@ public class LogonMonitor implements IntegrationMonitor {
         HttpResponse<String> response = null;
         try {
             response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            // print status code
-            System.out.println(response.statusCode());
-
-            // print response body
-            System.out.println(response.body());
+            log.trace("Response Code: {}. Body: {}", response.statusCode(), response.body());
         } catch (IOException e) {
             log.info("IOException: {}", e);
             e.printStackTrace();

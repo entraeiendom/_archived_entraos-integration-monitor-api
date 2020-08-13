@@ -3,6 +3,7 @@ package io.entraos.monitor.scheduler;
 import io.entraos.monitor.IntegrationMonitor;
 import org.slf4j.Logger;
 
+import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -18,6 +19,8 @@ public class ScheduledMonitorManager {
     private static boolean scheduled_monitor_started = false;
     private static boolean scheduled_monitor_running = false;
     private final int SECONDS_BETWEEN_SCHEDULED_RUNS;
+    private Instant lastSuccessfulConnect = null;
+    private Instant lastFailedConnect = null;
 
     private final IntegrationMonitor monitor;
 
@@ -58,10 +61,12 @@ public class ScheduledMonitorManager {
                     try {
                         scheduled_monitor_running = true;
                         monitor.connect();
+                        setLastSuccessfulConnect(Instant.now());
                         log.info("Flushed. Now waiting {} seconds for next run.", SECONDS_BETWEEN_SCHEDULED_RUNS);
                         scheduled_monitor_running = false;
                     } catch (Exception e) {
                         log.info("Exception trying to run scheduled monitor on {}. Reason: {}", monitor, e.getMessage());
+                        setLastFailedConnect(Instant.now());
                         scheduled_monitor_running = false;
                     }
                 } else {
@@ -74,5 +79,21 @@ public class ScheduledMonitorManager {
         } else {
             log.info("ScheduledImportManager is is already started");
         }
+    }
+
+    public Instant getLastSuccessfulConnect() {
+        return lastSuccessfulConnect;
+    }
+
+    private synchronized void setLastSuccessfulConnect(Instant lastSuccessfulConnect) {
+        this.lastSuccessfulConnect = lastSuccessfulConnect;
+    }
+
+    public Instant getLastFailedConnect() {
+        return lastFailedConnect;
+    }
+
+    private synchronized void setLastFailedConnect(Instant lastFailedConnect) {
+        this.lastFailedConnect = lastFailedConnect;
     }
 }
