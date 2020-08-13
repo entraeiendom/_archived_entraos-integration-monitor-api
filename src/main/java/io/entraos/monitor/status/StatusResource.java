@@ -16,11 +16,12 @@ public class StatusResource {
 
     private final MonitorService monitorService;
 
-    @Autowired
+
     public StatusResource() {
         monitorService = new MonitorService();
     }
 
+    @Autowired
     public StatusResource(MonitorService monitorService) {
         this.monitorService = monitorService;
     }
