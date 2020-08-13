@@ -90,6 +90,18 @@ public class MonitorService {
         return jsonBuilder.build().toString();
     }
 
+    public boolean isStatusOk() {
+        updateLastSuccessful();
+        updateLastFailed();
+        boolean statusOk = false;
+        if (lastSuccessfulLogon != null) {
+            if (lastFailedLogon == null || lastFailedLogon.isBefore(lastSuccessfulLogon)) {
+                statusOk = true;
+            }
+        }
+        return statusOk;
+    }
+
     void updateLastSuccessful() {
         Instant lastSuccessfulConnect = scheduler.getLastSuccessfulConnect();
         this.lastSuccessfulLogon = lastSuccessfulConnect;
