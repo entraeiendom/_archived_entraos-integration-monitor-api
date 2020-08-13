@@ -13,7 +13,7 @@
     <constretto:configuration>
         <constretto:stores>
             <constretto:properties-store>
-                <constretto:resource location="classpath:default.properties"/>
+                <constretto:resource location="classpath:application.properties"/>
                 <constretto:resource location="file:./local_config.properties"/>
             </constretto:properties-store>
         </constretto:stores>

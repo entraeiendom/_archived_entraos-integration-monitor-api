@@ -71,7 +71,7 @@ public class LogonMonitor implements IntegrationMonitor {
 
     public static HttpRequest.BodyPublisher ofFormData(Map<Object, Object> data) {
         log.trace("Build body string from {}", data);
-        var builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         for (Map.Entry<Object, Object> entry : data.entrySet()) {
             if (builder.length() > 0) {
                 builder.append("&");
