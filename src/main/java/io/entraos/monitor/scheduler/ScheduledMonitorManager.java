@@ -107,4 +107,8 @@ public class ScheduledMonitorManager {
     private synchronized void setLastFailedConnect(Instant lastFailedConnect) {
         this.lastFailedConnect = lastFailedConnect;
     }
+
+    public Status getStatus() {
+        return status;
+    }
 }

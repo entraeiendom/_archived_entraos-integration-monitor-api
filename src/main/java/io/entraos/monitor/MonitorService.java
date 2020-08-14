@@ -31,6 +31,7 @@ public class MonitorService {
     private final ScheduledMonitorManager scheduler;
     private Instant lastSuccessfulLogon = null;
     private Instant lastFailedLogon = null;
+    private Status status = Status.NOT_RUN_YET;
 
 
     public MonitorService() {
@@ -62,6 +63,7 @@ public class MonitorService {
     }
 
     public String toJson() {
+        updateStatus();
         updateLastSuccessful();
         updateLastFailed();
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
@@ -78,14 +80,8 @@ public class MonitorService {
         if (lastFailedLogon != null) {
             jsonBuilder.add("lastFailedLogon", lastFailedLogon.toString());
         }
-        if (lastSuccessfulLogon != null) {
-            if (lastFailedLogon == null) {
-                jsonBuilder.add("status", "ok");
-            } else if (lastFailedLogon.isAfter(lastSuccessfulLogon)) {
-                jsonBuilder.add("status", "failed");
-            } else if (lastFailedLogon.isBefore(lastSuccessfulLogon)) {
-                jsonBuilder.add("status", "ok");
-            }
+        if (status != null) {
+            jsonBuilder.add("status", status.toString());
         } else {
             jsonBuilder.add("status", "unknown");
         }
@@ -93,17 +89,20 @@ public class MonitorService {
     }
 
     public boolean isStatusOk() {
+        updateStatus();
         updateLastSuccessful();
         updateLastFailed();
         boolean statusOk = false;
-        if (lastSuccessfulLogon != null) {
-            if (lastFailedLogon == null || lastFailedLogon.isBefore(lastSuccessfulLogon)) {
-                statusOk = true;
-            }
+        if (status != null && status == Status.OK) {
+            statusOk = true;
         }
         return statusOk;
     }
 
+    void updateStatus() {
+        Status status = scheduler.getStatus();
+        this.status = status;
+    }
     void updateLastSuccessful() {
         Instant lastSuccessfulConnect = scheduler.getLastSuccessfulConnect();
         this.lastSuccessfulLogon = lastSuccessfulConnect;

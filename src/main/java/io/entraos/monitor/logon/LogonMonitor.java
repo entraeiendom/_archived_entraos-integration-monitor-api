@@ -9,10 +9,13 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -57,6 +60,7 @@ public class LogonMonitor implements IntegrationMonitor {
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .uri(logonUri)
                 .POST(bodyPublisher)
+                .timeout(Duration.of(15, ChronoUnit.SECONDS))
                 .build();
         HttpResponse<String> response = null;
         try {
@@ -85,6 +89,9 @@ public class LogonMonitor implements IntegrationMonitor {
                 log.trace("ConnectEception {}", ce);
                 status = Status.FAILED;
             }
+        } catch (HttpConnectTimeoutException te) {
+            log.trace("Host not responding {}", logonUri);
+            status = Status.HOST_UNREACHABLE;
         } catch (IOException e) {
             log.info("IOException: {}", e);
             e.printStackTrace();
