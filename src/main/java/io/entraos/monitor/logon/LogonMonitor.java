@@ -72,6 +72,25 @@ public class LogonMonitor implements IntegrationMonitor {
                     case 200:
                         status = Status.OK;
                         break;
+                    case 400:
+                        String responseBody = response.body();
+                        if (responseBody != null) {
+                            responseBody = responseBody.toLowerCase();
+                            if (responseBody.contains("user") || responseBody.contains("password")) {
+                                status = Status.UNAUTHORIZED;
+                            } else {
+                                status = Status.BAD_REQUEST;
+                            }
+                        } else {
+                            status = Status.BAD_REQUEST;
+                        }
+                        break;
+                    case 401:
+                        status = Status.UNAUTHORIZED;
+                        break;
+                    case 403:
+                        status = Status.UNAUTHORIZED;
+                        break;
                     default:
                         status = Status.FAILED;
                 }
