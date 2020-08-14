@@ -24,6 +24,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Service
 public class MonitorService {
     private static final Logger log = getLogger(MonitorService.class);
+    private static final String SERVICE_TYPE = "A2A"; //https://wiki.cantara.no/display/OWSOA/A2A
     private final String environment;
     private final String serviceName;
     private final Instant startedAt = Instant.now();
@@ -66,6 +67,7 @@ public class MonitorService {
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
                 .add("environment", environment)
                 .add("name", serviceName)
+                .add("serviceType", SERVICE_TYPE)
                 .add("ip", getMyIPAddresssString())
                 .add("version", getVersion())
                 .add("now", Instant.now().toString())
@@ -160,6 +162,7 @@ public class MonitorService {
         return "MonitorService{" +
                 "environment='" + environment + '\'' +
                 ", serviceName='" + serviceName + '\'' +
+                ", serviceType='" + SERVICE_TYPE + '\'' +
                 ", startedAt=" + startedAt +
                 ", lastSuccessfullLogon=" + lastSuccessfulLogon +
                 ", lastFailedLogon=" + lastFailedLogon +
