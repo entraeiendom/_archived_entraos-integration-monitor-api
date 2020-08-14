@@ -1,19 +1,20 @@
 package io.entraos.monitor.logon;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import io.entraos.monitor.Status;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static no.cantara.config.ServiceConfig.getProperty;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -46,8 +47,9 @@ public class LogonMonitorTest {
         LogonMonitor logonMonitor = new LogonMonitor(logonUri);
         assertNotNull(logonMonitor);
         assertNotNull(LogonMonitor.ofFormData(data));
-        HttpResponse response = logonMonitor.postLogon(data);
-        assertNotNull(response);
+        Status status = logonMonitor.postLogon(data);
+        assertNotNull(status);
+        assertEquals(Status.OK, status);
     }
 
     @Test
@@ -67,8 +69,8 @@ public class LogonMonitorTest {
         String logonUriProperty = getProperty("logon_uri");
         URI logonUri = new URI(logonUriProperty);
         LogonMonitor logonMonitor = new LogonMonitor(logonUri);
-        HttpResponse response = logonMonitor.postLogon(data);
-        log.info("Response: {}", response);
+        Status status = logonMonitor.postLogon(data);
+        log.info("Status: {}", status);
     }
 
 

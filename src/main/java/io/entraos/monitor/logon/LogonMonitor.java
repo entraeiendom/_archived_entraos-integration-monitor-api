@@ -1,17 +1,21 @@
 package io.entraos.monitor.logon;
 
 import io.entraos.monitor.IntegrationMonitor;
+import io.entraos.monitor.Status;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.channels.UnresolvedAddressException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static no.cantara.config.ServiceConfig.getProperty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -28,19 +32,16 @@ public class LogonMonitor implements IntegrationMonitor {
     }
 
     @Override
-    public void connect() {
+    public Status connect() {
+        Status status = Status.FAILED;
         Map<Object, Object> data = new HashMap<>();
         data.put("grant_type", getProperty("logon_grant_type"));
         data.put("username", getProperty("logon_username"));
         data.put("password", getProperty("logon_password"));
-        HttpResponse response = postLogon(data);
-        if (response != null && response.statusCode() == 200) {
-            //FIXME need to tell if reason to failure was HostNotFound or username/pw failed.
-            log.trace("Connected ok.");
-        } else if (response != null) {
-            throw new IllegalStateException("Connect to " + logonUri + " failed. HttpCode: " + response.statusCode() + ". Body: " + response.body());
-        }
-        log.trace("Data: {}, Response: {}");
+        status = postLogon(data);
+
+        log.trace("Data: {}, Status: {}", data, status);
+        return status;
     }
 
     /*
@@ -49,7 +50,8 @@ public class LogonMonitor implements IntegrationMonitor {
          "username=baardl-test"
          "password=anything"
          */
-    public HttpResponse postLogon(Map<Object, Object> body) {
+    public Status postLogon(Map<Object, Object> body) {
+        Status status = Status.NOT_RUN_YET;
         HttpRequest.BodyPublisher bodyPublisher = ofFormData(body);
         httpRequest = HttpRequest.newBuilder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
@@ -59,7 +61,30 @@ public class LogonMonitor implements IntegrationMonitor {
         HttpResponse<String> response = null;
         try {
             response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            log.trace("Response Code: {}. Body: {}", response.statusCode(), response.body());
+            if (response != null) {
+                log.trace("Response Code: {}. Body: {}", response.statusCode(), response.body());
+                int httpStatus = response.statusCode();
+                switch (httpStatus) {
+                    case 200:
+                        status = Status.OK;
+                        break;
+                    default:
+                        status = Status.FAILED;
+                }
+            } else {
+                log.trace("No response from {}", logonUri);
+                status = Status.FAILED;
+            }
+
+        } catch (ConnectException ce) {
+            Throwable rootCause = findRootCause(ce);
+            if (rootCause != null && rootCause instanceof UnresolvedAddressException) {
+                log.trace("Missing DNS for {}", logonUri);
+                status = Status.UNKNOWN_HOST;
+            } else {
+                log.trace("ConnectEception {}", ce);
+                status = Status.FAILED;
+            }
         } catch (IOException e) {
             log.info("IOException: {}", e);
             e.printStackTrace();
@@ -68,7 +93,7 @@ public class LogonMonitor implements IntegrationMonitor {
             e.printStackTrace();
         }
 
-        return response;
+        return status;
     }
 
     public static HttpRequest.BodyPublisher ofFormData(Map<Object, Object> data) {
@@ -87,5 +112,14 @@ public class LogonMonitor implements IntegrationMonitor {
         HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.ofString(builder.toString());
         log.trace("Built publisher: {}", bodyPublisher);
         return bodyPublisher;
+    }
+
+    public static Throwable findRootCause(Throwable throwable) {
+        Objects.requireNonNull(throwable);
+        Throwable rootCause = throwable;
+        while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+            rootCause = rootCause.getCause();
+        }
+        return rootCause;
     }
 }

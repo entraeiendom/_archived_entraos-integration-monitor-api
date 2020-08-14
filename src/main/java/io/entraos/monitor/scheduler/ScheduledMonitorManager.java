@@ -1,6 +1,7 @@
 package io.entraos.monitor.scheduler;
 
 import io.entraos.monitor.IntegrationMonitor;
+import io.entraos.monitor.Status;
 import org.slf4j.Logger;
 
 import java.time.Instant;
@@ -23,6 +24,7 @@ public class ScheduledMonitorManager {
     private Instant lastFailedConnect = null;
 
     private final IntegrationMonitor monitor;
+    private Status status = Status.NOT_RUN_YET;
 
     public ScheduledMonitorManager(IntegrationMonitor integrationMonitor) {
         this.monitor = integrationMonitor;
@@ -60,8 +62,13 @@ public class ScheduledMonitorManager {
 
                     try {
                         scheduled_monitor_running = true;
-                        monitor.connect();
-                        setLastSuccessfulConnect(Instant.now());
+                        Status status = monitor.connect();
+                        if (status == Status.OK) {
+                            setLastSuccessfulConnect(Instant.now());
+                        } else {
+                            setLastFailedConnect(Instant.now());
+                        }
+                        setStatus(status);
                         log.info("Flushed. Now waiting {} seconds for next run.", SECONDS_BETWEEN_SCHEDULED_RUNS);
                         scheduled_monitor_running = false;
                     } catch (Exception e) {
@@ -79,6 +86,10 @@ public class ScheduledMonitorManager {
         } else {
             log.info("ScheduledImportManager is is already started");
         }
+    }
+
+    private synchronized void setStatus(Status status) {
+        this.status = status;
     }
 
     public Instant getLastSuccessfulConnect() {
