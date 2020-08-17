@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +73,7 @@ public class LogonMonitorTest {
     }
 
     @Test
-    public void badrequest() {
+    public void badRequest() {
 //        port = wireMockRule.port();
 //        logonUri = URI.create("http://localhost:" + port + "/logon");
 
@@ -110,7 +111,7 @@ public class LogonMonitorTest {
     }
 
     @Test
-    public void unauthenticated() {
+    public void unAuthenticated() {
         port = wireMockRule.port();
         logonUri = URI.create("http://localhost:" + port + "/logon");
 
@@ -129,7 +130,7 @@ public class LogonMonitorTest {
     }
 
     @Test
-    public void unauthorized() {
+    public void unAuthorized() {
         port = wireMockRule.port();
         logonUri = URI.create("http://localhost:" + port + "/logon");
 
@@ -171,6 +172,28 @@ public class LogonMonitorTest {
         Status status = logonMonitor.postLogon(bodyData);
         assertNotNull(status);
         assertEquals(Status.HOST_UNREACHABLE, status);
+    }
+
+    @Test
+    public void connectException() throws Exception {
+        when(mockClient.send(ArgumentMatchers.any(),ArgumentMatchers.any())).thenThrow(new ConnectException());
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri, mockClient);
+        Status status = logonMonitor.postLogon(bodyData);
+        assertEquals(Status.FAILED, status);
+    }
+    @Test
+    public void ioException() throws Exception {
+        when(mockClient.send(ArgumentMatchers.any(),ArgumentMatchers.any())).thenThrow(new IOException());
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri, mockClient);
+        Status status = logonMonitor.postLogon(bodyData);
+        assertEquals(Status.FAILED, status);
+    }
+    @Test
+    public void interuptedException() throws Exception {
+        when(mockClient.send(ArgumentMatchers.any(),ArgumentMatchers.any())).thenThrow(new InterruptedException());
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri, mockClient);
+        Status status = logonMonitor.postLogon(bodyData);
+        assertEquals(Status.FAILED, status);
     }
 
 

@@ -117,13 +117,14 @@ public class LogonMonitor implements IntegrationMonitor {
             log.trace("Host not responding {}", logonUri);
             status = Status.HOST_UNREACHABLE;
         } catch (IOException e) {
-            log.info("IOException: {}", e);
-            e.printStackTrace();
+            log.trace("IOException on {}. Reason: {}",logonUri, e);
+            status = Status.FAILED;
         } catch (InterruptedException e) {
-            log.info("InteruptedException: {}", e);
-            e.printStackTrace();
+            log.trace("InteruptedException on {}. Reason: {}", logonUri, e);
+            status = Status.FAILED;
         } catch (UnresolvedAddressException uae) {
-            log.info("Not found");
+            log.trace("Missing DNS for {}", logonUri);
+            status = Status.UNKNOWN_HOST;
         }
 
         return status;
