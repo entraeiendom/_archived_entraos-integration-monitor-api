@@ -12,6 +12,7 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,6 +157,19 @@ public class LogonMonitorTest {
         Status status = logonMonitor.postLogon(bodyData);
         assertNotNull(status);
         assertEquals(Status.UNKNOWN_HOST, status);
+    }
+
+    @Test
+    public void hostNotResponding() throws Exception {
+        port = wireMockRule.port();
+        logonUri = URI.create("http://localhost:" + port + "/logon");
+
+        HttpConnectTimeoutException hostNotResponding = new HttpConnectTimeoutException("host not responding");
+        when(mockClient.send(ArgumentMatchers.any(),ArgumentMatchers.any())).thenThrow(hostNotResponding);
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri, mockClient);
+        Status status = logonMonitor.postLogon(bodyData);
+        assertNotNull(status);
+        assertEquals(Status.HOST_UNREACHABLE, status);
     }
 
     @Test
