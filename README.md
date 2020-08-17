@@ -3,6 +3,9 @@ Generic monitor observing that integration between services do work.
 
 ## Endpoints:
 
+Default context
+http://localhost:8080/monitor
+
 ### /status
 List of integrations currently supporting:
 * Logon
@@ -16,7 +19,7 @@ Will respond http 200 if all is well
 Will respond http 412 precondition failed if any of the validations failed.
 
 ## Alerting:
-Will send alert to Slack
+TODO Will send alert to Slack
 
 ## Configuration
 
@@ -25,6 +28,7 @@ Use environment variables or edit local_config.properties.
 ```
 environment=dev
 service_name=local-test
+server_port=8080
 
 logon_uri=http://logon.example.com:8080/logon
 logon_grant_type=password

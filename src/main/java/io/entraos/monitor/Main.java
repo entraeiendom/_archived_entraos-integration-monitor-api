@@ -15,49 +15,16 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
+import static no.cantara.config.ServiceConfig.getProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @SuppressWarnings("restriction")
 public class Main {
     private static final Logger log = getLogger(Main.class);
-    /*
-    public static void main(String[] args) throws Exception {
 
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
-
-        int port = 8080;
-        Server jettyServer = new Server(port);
-        jettyServer.setHandler(context);
-
-        ServletHolder jerseyServlet = context.addServlet(
-                org.glassfish.jersey.servlet.ServletContainer.class, "/*");
-        jerseyServlet.setInitOrder(0);
-
-
-        // Tells the Jersey Servlet which REST service/class to load.
-        jerseyServlet.setInitParameter(
-                "jersey.config.server.provider.classnames",
-                StatusResource.class.getCanonicalName());
-
-
-        try {
-            jettyServer.start();
-            String serverUrl = "http://localhost:" + port + "/";
-            log.info("Server started on {}", serverUrl );
-            log.info("Status available on {}status", serverUrl);
-            jettyServer.join();
-
-        } finally {
-            log.info("Shutting down.");
-            jettyServer.destroy();
-        }
-
-    }
-
-     */
     public static final String CONTEXT_PATH = "/monitor";
     private static final String LOGS_NAME = "logs";
+    public static final int DEFAULT_PORT = 8080;
 
 
     private Integer webappPort;
@@ -79,7 +46,15 @@ public class Main {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
-        Integer webappPort = 8080; //Configuration.getInt("service.port");
+        Integer webappPort = DEFAULT_PORT;
+        String port = getProperty("server_port");
+        if (port != null) {
+            try {
+               webappPort = Integer.valueOf(port);
+            } catch (NumberFormatException nfe) {
+                log.warn("Failed to create port as integer from {}. Using default port: {}", port, webappPort);
+            }
+        }
 
         try {
 
@@ -132,7 +107,11 @@ public class Main {
             // "System. exit(2);"
         }
         webappPort = connector.getLocalPort();
-        log.info("microservice-baseline started on http://localhost:{}{}", webappPort, CONTEXT_PATH);
+        String baseUri = "http://localhost:" + webappPort + "/" + CONTEXT_PATH + "/";
+        log.info("integration monitor started on {}", baseUri);
+        log.info("    Status on {}status", baseUri);
+        log.info("    Health on {}health", baseUri);
+
         try {
             server.join();
         } catch (InterruptedException e) {
