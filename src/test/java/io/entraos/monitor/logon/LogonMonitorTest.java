@@ -47,12 +47,15 @@ public class LogonMonitorTest {
         bodyData.put("password", getProperty("logon_password"));
 
         mockClient = mock(HttpClient.class);
+
+        port = wireMockRule.port();
+        logonUri = URI.create("http://localhost:" + port + "/logon");
     }
 
     @Test
     public void postLogon() {
-        port = wireMockRule.port();
-        logonUri = URI.create("http://localhost:" + port + "/logon");
+//        port = wireMockRule.port();
+//        logonUri = URI.create("http://localhost:" + port + "/logon");
 
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
@@ -70,8 +73,8 @@ public class LogonMonitorTest {
 
     @Test
     public void badrequest() {
-        port = wireMockRule.port();
-        logonUri = URI.create("http://localhost:" + port + "/logon");
+//        port = wireMockRule.port();
+//        logonUri = URI.create("http://localhost:" + port + "/logon");
 
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
@@ -161,8 +164,6 @@ public class LogonMonitorTest {
 
     @Test
     public void hostNotResponding() throws Exception {
-        port = wireMockRule.port();
-        logonUri = URI.create("http://localhost:" + port + "/logon");
 
         HttpConnectTimeoutException hostNotResponding = new HttpConnectTimeoutException("host not responding");
         when(mockClient.send(ArgumentMatchers.any(),ArgumentMatchers.any())).thenThrow(hostNotResponding);
@@ -171,6 +172,7 @@ public class LogonMonitorTest {
         assertNotNull(status);
         assertEquals(Status.HOST_UNREACHABLE, status);
     }
+
 
     @Test
     public void ofFormDataTest() {
