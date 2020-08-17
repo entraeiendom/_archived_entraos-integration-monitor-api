@@ -33,4 +33,16 @@ public class HealthResourceTest {
         String body = (String) response.getEntity();
         assertEquals(healthyJson, body);
     }
+
+    @Test
+    public void getMessageUnHealthy() {
+        when(monitorService.isStatusOk()).thenReturn(false);
+        String unHealthyBody = "see http://<host>:<port>/monitor/status for reason to failure.";
+        when(monitorService.toJson()).thenReturn(unHealthyBody);
+        Response response = healthResource.getMessage();
+        assertNotNull(response);
+        assertEquals(412, response.getStatus());
+        String body = response.getStatusInfo().getReasonPhrase();
+        assertEquals(unHealthyBody, body);
+    }
 }
