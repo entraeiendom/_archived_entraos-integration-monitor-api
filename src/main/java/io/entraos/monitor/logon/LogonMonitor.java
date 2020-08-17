@@ -33,6 +33,10 @@ public class LogonMonitor implements IntegrationMonitor {
         this.logonUri = logonUri;
         client = HttpClient.newBuilder().build();
     }
+    protected LogonMonitor(URI logonUri, HttpClient client) {
+        this.logonUri = logonUri;
+        this.client = client;
+    }
 
     @Override
     public Status connect() {
@@ -100,6 +104,7 @@ public class LogonMonitor implements IntegrationMonitor {
             }
 
         } catch (ConnectException ce) {
+            ce.printStackTrace();
             Throwable rootCause = findRootCause(ce);
             if (rootCause != null && rootCause instanceof UnresolvedAddressException) {
                 log.trace("Missing DNS for {}", logonUri);
@@ -117,6 +122,8 @@ public class LogonMonitor implements IntegrationMonitor {
         } catch (InterruptedException e) {
             log.info("InteruptedException: {}", e);
             e.printStackTrace();
+        } catch (UnresolvedAddressException uae) {
+            log.info("Not found");
         }
 
         return status;

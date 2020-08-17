@@ -5,10 +5,14 @@ import io.entraos.monitor.Status;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.slf4j.Logger;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +21,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static no.cantara.config.ServiceConfig.getProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
@@ -25,6 +31,7 @@ public class LogonMonitorTest {
     private int port;
     private URI logonUri;
     private Map<Object,Object> bodyData = null;
+    private HttpClient mockClient = null;
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
@@ -37,6 +44,8 @@ public class LogonMonitorTest {
         bodyData.put("grant_type", getProperty("logon_grant_type"));
         bodyData.put("username", getProperty("logon_username"));
         bodyData.put("password", getProperty("logon_password"));
+
+        mockClient = mock(HttpClient.class);
     }
 
     @Test
@@ -132,6 +141,21 @@ public class LogonMonitorTest {
         Status status = logonMonitor.postLogon(bodyData);
         assertNotNull(status);
         assertEquals(Status.UNAUTHORIZED, status);
+    }
+
+    @Test
+    public void hostNotFound() throws Exception {
+        port = wireMockRule.port();
+        logonUri = URI.create("http://localhost:" + port + "/logon");
+
+        UnresolvedAddressException uae = new UnresolvedAddressException();
+        Throwable unresolvedAddressException = new ConnectException("missing dns");
+        unresolvedAddressException.initCause(uae);
+        when(mockClient.send(ArgumentMatchers.any(),ArgumentMatchers.any())).thenThrow(unresolvedAddressException);
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri, mockClient);
+        Status status = logonMonitor.postLogon(bodyData);
+        assertNotNull(status);
+        assertEquals(Status.UNKNOWN_HOST, status);
     }
 
     @Test
