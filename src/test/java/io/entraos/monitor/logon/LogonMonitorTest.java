@@ -2,6 +2,7 @@ package io.entraos.monitor.logon;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.entraos.monitor.Status;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,21 +24,26 @@ public class LogonMonitorTest {
     private static final Logger log = getLogger(LogonMonitorTest.class);
     private int port;
     private URI logonUri;
+    private Map<Object,Object> bodyData = null;
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
             .dynamicPort()
     );
 
+    @Before
+    public void setUp() throws Exception {
+        bodyData = new HashMap<>();
+        bodyData.put("grant_type", getProperty("logon_grant_type"));
+        bodyData.put("username", getProperty("logon_username"));
+        bodyData.put("password", getProperty("logon_password"));
+    }
 
     @Test
     public void postLogon() {
         port = wireMockRule.port();
         logonUri = URI.create("http://localhost:" + port + "/logon");
-        Map<Object, Object> data = new HashMap<>();
-        data.put("grant_type", getProperty("logon_grant_type"));
-        data.put("username", getProperty("logon_username"));
-        data.put("password", getProperty("logon_password"));
+
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
                 .willReturn(aResponse()
@@ -46,8 +52,8 @@ public class LogonMonitorTest {
                         .withBody("<response>Some content</response>")));
         LogonMonitor logonMonitor = new LogonMonitor(logonUri);
         assertNotNull(logonMonitor);
-        assertNotNull(LogonMonitor.ofFormData(data));
-        Status status = logonMonitor.postLogon(data);
+        assertNotNull(LogonMonitor.ofFormData(bodyData));
+        Status status = logonMonitor.postLogon(bodyData);
         assertNotNull(status);
         assertEquals(Status.OK, status);
     }
