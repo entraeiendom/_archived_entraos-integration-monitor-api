@@ -59,6 +59,82 @@ public class LogonMonitorTest {
     }
 
     @Test
+    public void badrequest() {
+        port = wireMockRule.port();
+        logonUri = URI.create("http://localhost:" + port + "/logon");
+
+        wireMockRule.stubFor(post(urlEqualTo("/logon"))
+                .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
+                .willReturn(aResponse()
+                        .withStatus(400)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("Bad Request")));
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri);
+        assertNotNull(logonMonitor);
+        assertNotNull(LogonMonitor.ofFormData(bodyData));
+        Status status = logonMonitor.postLogon(bodyData);
+        assertNotNull(status);
+        assertEquals(Status.BAD_REQUEST, status);
+    }
+
+    @Test
+    public void wrongUsernamePassword() {
+        port = wireMockRule.port();
+        logonUri = URI.create("http://localhost:" + port + "/logon");
+
+        wireMockRule.stubFor(post(urlEqualTo("/logon"))
+                .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
+                .willReturn(aResponse()
+                        .withStatus(400)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("Illegal username password")));
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri);
+        assertNotNull(logonMonitor);
+        assertNotNull(LogonMonitor.ofFormData(bodyData));
+        Status status = logonMonitor.postLogon(bodyData);
+        assertNotNull(status);
+        assertEquals(Status.UNAUTHORIZED, status);
+    }
+
+    @Test
+    public void unauthenticated() {
+        port = wireMockRule.port();
+        logonUri = URI.create("http://localhost:" + port + "/logon");
+
+        wireMockRule.stubFor(post(urlEqualTo("/logon"))
+                .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
+                .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("Illegal username password")));
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri);
+        assertNotNull(logonMonitor);
+        assertNotNull(LogonMonitor.ofFormData(bodyData));
+        Status status = logonMonitor.postLogon(bodyData);
+        assertNotNull(status);
+        assertEquals(Status.UNAUTHORIZED, status);
+    }
+
+    @Test
+    public void unauthorized() {
+        port = wireMockRule.port();
+        logonUri = URI.create("http://localhost:" + port + "/logon");
+
+        wireMockRule.stubFor(post(urlEqualTo("/logon"))
+                .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
+                .willReturn(aResponse()
+                        .withStatus(403)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("Unauthorized")));
+        LogonMonitor logonMonitor = new LogonMonitor(logonUri);
+        assertNotNull(logonMonitor);
+        assertNotNull(LogonMonitor.ofFormData(bodyData));
+        Status status = logonMonitor.postLogon(bodyData);
+        assertNotNull(status);
+        assertEquals(Status.UNAUTHORIZED, status);
+    }
+
+    @Test
     public void ofFormDataTest() {
         Map<Object, Object> data = new HashMap<>();
         data.put("grant_type", " ");
