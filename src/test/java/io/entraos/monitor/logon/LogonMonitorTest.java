@@ -55,9 +55,6 @@ public class LogonMonitorTest {
 
     @Test
     public void postLogon() {
-//        port = wireMockRule.port();
-//        logonUri = URI.create("http://localhost:" + port + "/logon");
-
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
                 .willReturn(aResponse()
@@ -74,9 +71,6 @@ public class LogonMonitorTest {
 
     @Test
     public void badRequest() {
-//        port = wireMockRule.port();
-//        logonUri = URI.create("http://localhost:" + port + "/logon");
-
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
                 .willReturn(aResponse()
@@ -93,9 +87,6 @@ public class LogonMonitorTest {
 
     @Test
     public void wrongUsernamePassword() {
-        port = wireMockRule.port();
-        logonUri = URI.create("http://localhost:" + port + "/logon");
-
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
                 .willReturn(aResponse()
@@ -112,9 +103,6 @@ public class LogonMonitorTest {
 
     @Test
     public void unAuthenticated() {
-        port = wireMockRule.port();
-        logonUri = URI.create("http://localhost:" + port + "/logon");
-
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
                 .willReturn(aResponse()
@@ -131,9 +119,6 @@ public class LogonMonitorTest {
 
     @Test
     public void unAuthorized() {
-        port = wireMockRule.port();
-        logonUri = URI.create("http://localhost:" + port + "/logon");
-
         wireMockRule.stubFor(post(urlEqualTo("/logon"))
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded"))
                 .willReturn(aResponse()
@@ -150,9 +135,6 @@ public class LogonMonitorTest {
 
     @Test
     public void hostNotFound() throws Exception {
-        port = wireMockRule.port();
-        logonUri = URI.create("http://localhost:" + port + "/logon");
-
         UnresolvedAddressException uae = new UnresolvedAddressException();
         Throwable unresolvedAddressException = new ConnectException("missing dns");
         unresolvedAddressException.initCause(uae);
