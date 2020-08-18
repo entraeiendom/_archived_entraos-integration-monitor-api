@@ -27,14 +27,25 @@ public class ScheduledMonitorManagerTest {
         manager.notifyAlerters(Status.FAILED);
 
         verify(alerter, times(1)).isAlertingEnabled();
+        verify(alerter, times(1)).notifyFailure(anyString());
     }
 
     @Test
     public void multipleFailedStatuses() {
-
         when(alerter.isAlertingEnabled()).thenReturn(true);
         manager.notifyAlerters(Status.FAILED);
         manager.notifyAlerters(Status.FAILED);
+        verify(alerter, times(2)).isAlertingEnabled();
+    }
+
+    @Test
+    public void notifyAlertersFromOkToFailedToOk() {
+        when(alerter.isAlertingEnabled()).thenReturn(true);
+        manager.notifyAlerters(Status.FAILED);
         verify(alerter, times(1)).isAlertingEnabled();
+        verify(alerter, times(1)).notifyFailure(anyString());
+        manager.notifyAlerters(Status.OK);
+        verify(alerter, times(2)).isAlertingEnabled();
+        verify(alerter, times(1)).notifyRevival(anyString());
     }
 }

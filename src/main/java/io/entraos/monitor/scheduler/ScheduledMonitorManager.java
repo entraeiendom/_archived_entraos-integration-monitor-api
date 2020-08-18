@@ -99,9 +99,15 @@ public class ScheduledMonitorManager {
                 if (alerter.isAlertingEnabled()) {
                     String serviceName = getProperty("service_name");
                     String environment = getProperty("environment");
-                    String message = "Integration Failed on" + serviceName + " in " + environment + ". Status is " + status.toString();
-                    log.trace("Sending alert: {}", message);
-                    alerter.notifyFailure(message);
+                    if (status == Status.OK) {
+                        String message = "Integration OK on" + serviceName + " in " + environment + ". Status is " + status.toString();
+                        log.trace("Sending alert: {}", message);
+                        alerter.notifyRevival(message);
+                    } else {
+                        String message = "Integration Failed on" + serviceName + " in " + environment + ". Status is " + status.toString();
+                        log.trace("Sending alert: {}", message);
+                        alerter.notifyFailure(message);
+                    }
                 }
             }
         }
