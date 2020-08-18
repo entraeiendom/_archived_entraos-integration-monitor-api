@@ -71,11 +71,15 @@ public class SlackAlerter {
 
             try {
                 ChatPostMessageResponse response = methodsClient.chatPostMessage(request);
-                log.info("Slack Response: {}", response);
+                if (response != null && !response.isOk()) {
+                    log.warn("Failed to send message: {} to channel: {}. Response: {}", message, channel, response);
+                } else {
+                    log.trace("Slack Response: {}", response);
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.trace("IOException when sending message: {} to channel {}. Reason: {}", message, channel, e.getMessage());
             } catch (SlackApiException e) {
-                e.printStackTrace();
+                log.trace("SlackApiException when sending message: {} to channel {}. Reason: {}", message, channel, e.getMessage());
             }
         }
     }
