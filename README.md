@@ -18,9 +18,6 @@ Target for external monitoring application
 Will respond http 200 if all is well
 Will respond http 412 precondition failed if any of the validations failed.
 
-## Alerting:
-TODO Will send alert to Slack
-
 ## Configuration
 
 Use environment variables or edit local_config.properties.
@@ -34,4 +31,15 @@ logon_uri=http://logon.example.com:8080/logon
 logon_grant_type=password
 logon_username=someone
 logon_password=anyting
+```
+
+## Alerting:
+1. Create app https://api.slack.com/apps
+2. Select OAuth and Permissions
+3. Copy token
+4. Configure in local_config.properties
+```
+slack_alerting_enabled=true
+slack_token=<token from 3.>
+slack_channel=#random
 ```

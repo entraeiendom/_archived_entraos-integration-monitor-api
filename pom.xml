@@ -216,6 +216,12 @@
       </exclusions>
     </dependency>
 
+    <!-- Alerting -->
+    <dependency>
+      <groupId>com.slack.api</groupId>
+      <artifactId>slack-api-client</artifactId>
+      <version>1.1.3</version>
+    </dependency>
 
     <!-- Logging -->
     <dependency>
