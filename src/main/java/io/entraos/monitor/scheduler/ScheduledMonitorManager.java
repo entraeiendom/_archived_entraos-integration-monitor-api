@@ -103,13 +103,13 @@ public class ScheduledMonitorManager {
                         if (lastKnownStatus == Status.NOT_RUN_YET || lastKnownStatus == Status.OK) {
                             //no need to notify.
                         } else {
-                            String message = "Integration OK on" + serviceName + " in " + environment + ". Status is " + currentStatus.toString();
+                            String message = "Integration OK on " + serviceName + " in " + environment + ". Status is " + currentStatus.toString();
                             log.trace("Sending revival alert: {}", message);
                             alerter.notifyRevival(message);
                         }
                     } else {
                         if (lastKnownStatus == Status.NOT_RUN_YET || lastKnownStatus == Status.OK) {
-                            String message = "Integration Failed on" + serviceName + " in " + environment + ". Status is " + currentStatus.toString();
+                            String message = "Integration Failed on " + serviceName + " in " + environment + ". Status is " + currentStatus.toString();
                             log.trace("Sending failure alert: {}", message);
                             alerter.notifyFailure(message);
                         } else {

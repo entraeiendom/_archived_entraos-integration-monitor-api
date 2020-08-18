@@ -1,8 +1,10 @@
 package io.entraos.monitor;
 
+import io.entraos.monitor.alerting.Alerter;
 import io.entraos.monitor.logon.LogonMonitor;
 import io.entraos.monitor.scheduler.ScheduledMonitorManager;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Singleton;
@@ -34,17 +36,18 @@ public class MonitorService {
     private Status status = Status.NOT_RUN_YET;
 
 
-    public MonitorService() {
-        this(Configuration.getString("environment"), getProperty("service_name"));
+    @Autowired
+    public MonitorService(Alerter... alerters) {
+        this(Configuration.getString("environment"), getProperty("service_name"), alerters);
 
     }
-    public MonitorService(String environment, String serviceName) {
+    public MonitorService(String environment, String serviceName, Alerter... alerters) {
         this.environment = environment;
         this.serviceName = serviceName;
         URI logonUri = URI.create(getProperty("logon_uri"));
         log.warn("Creating MonitorService for url: {}", logonUri);
         LogonMonitor logonMonitor = new LogonMonitor(logonUri);
-        scheduler = new ScheduledMonitorManager(logonMonitor);
+        scheduler = new ScheduledMonitorManager(logonMonitor, alerters);
         scheduler.startScheduledMonitor();
     }
 

@@ -6,12 +6,14 @@ import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 import static no.cantara.config.ServiceConfig.getProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@Service
 public class SlackAlerter implements Alerter {
     private static final Logger log = getLogger(SlackAlerter.class);
     public static final String ALERT_EMOJI = ":exclamation:";
