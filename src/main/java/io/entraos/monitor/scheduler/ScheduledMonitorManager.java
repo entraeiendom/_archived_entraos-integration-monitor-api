@@ -2,6 +2,7 @@ package io.entraos.monitor.scheduler;
 
 import io.entraos.monitor.IntegrationMonitor;
 import io.entraos.monitor.Status;
+import io.entraos.monitor.alerting.Alerter;
 import org.slf4j.Logger;
 
 import java.time.Instant;
@@ -20,14 +21,16 @@ public class ScheduledMonitorManager {
     private static boolean scheduled_monitor_started = false;
     private static boolean scheduled_monitor_running = false;
     private final int SECONDS_BETWEEN_SCHEDULED_RUNS;
+    private final Alerter[] alerters;
     private Instant lastSuccessfulConnect = null;
     private Instant lastFailedConnect = null;
 
     private final IntegrationMonitor monitor;
     private Status status = Status.NOT_RUN_YET;
 
-    public ScheduledMonitorManager(IntegrationMonitor integrationMonitor) {
+    public ScheduledMonitorManager(IntegrationMonitor integrationMonitor, Alerter... alerters) {
         this.monitor = integrationMonitor;
+        this.alerters = alerters;
         Integer scheduleMinutes = findScheduledMinutes();
         if (scheduleMinutes != null) {
             SECONDS_BETWEEN_SCHEDULED_RUNS = scheduleMinutes * 60;
@@ -68,11 +71,13 @@ public class ScheduledMonitorManager {
                         } else {
                             setLastFailedConnect(Instant.now());
                         }
+                        notifyAlerters(status);
                         setStatus(status);
                         log.info("Flushed. Now waiting {} seconds for next run.", SECONDS_BETWEEN_SCHEDULED_RUNS);
                         scheduled_monitor_running = false;
                     } catch (Exception e) {
                         log.info("Exception trying to run scheduled monitor on {}. Reason: {}", monitor, e.getMessage());
+                        notifyAlerters(Status.FAILED);
                         setLastFailedConnect(Instant.now());
                         scheduled_monitor_running = false;
                     }
@@ -88,7 +93,22 @@ public class ScheduledMonitorManager {
         }
     }
 
-    private synchronized void setStatus(Status status) {
+    synchronized void notifyAlerters(Status status) {
+        if (status != null) {
+            for (Alerter alerter : alerters) {
+                if (alerter.isAlertingEnabled()) {
+                    String serviceName = getProperty("service_name");
+                    String environment = getProperty("environment");
+                    String message = "Integration Failed on" + serviceName + " in " + environment + ". Status is " + status.toString();
+                    log.trace("Sending alert: {}", message);
+                    alerter.notifyFailure(message);
+                }
+            }
+        }
+        //TODO boolean lastKnowStatus =
+    }
+
+    synchronized void setStatus(Status status) {
         this.status = status;
     }
 
