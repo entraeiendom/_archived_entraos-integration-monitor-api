@@ -23,11 +23,18 @@ public class ScheduledMonitorManagerTest {
 
     @Test
     public void notifyAlertersFromUnknownToFailure() {
-
         when(alerter.isAlertingEnabled()).thenReturn(true);
         manager.notifyAlerters(Status.FAILED);
 
         verify(alerter, times(1)).isAlertingEnabled();
-//        verify(mockAlerter, times(1)).();
+    }
+
+    @Test
+    public void multipleFailedStatuses() {
+
+        when(alerter.isAlertingEnabled()).thenReturn(true);
+        manager.notifyAlerters(Status.FAILED);
+        manager.notifyAlerters(Status.FAILED);
+        verify(alerter, times(1)).isAlertingEnabled();
     }
 }
