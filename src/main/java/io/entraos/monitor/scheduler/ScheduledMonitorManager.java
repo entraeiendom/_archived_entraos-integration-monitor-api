@@ -26,7 +26,7 @@ public class ScheduledMonitorManager {
     private Instant lastFailedConnect = null;
 
     private final IntegrationMonitor monitor;
-    private Status status = Status.NOT_RUN_YET;
+    private Status lastKnownStatus = Status.NOT_RUN_YET;
 
     public ScheduledMonitorManager(IntegrationMonitor integrationMonitor, Alerter... alerters) {
         this.monitor = integrationMonitor;
@@ -65,14 +65,14 @@ public class ScheduledMonitorManager {
 
                     try {
                         scheduled_monitor_running = true;
-                        Status status = monitor.connect();
-                        if (status == Status.OK) {
+                        Status currentStatus = monitor.connect();
+                        if (currentStatus == Status.OK) {
                             setLastSuccessfulConnect(Instant.now());
                         } else {
                             setLastFailedConnect(Instant.now());
                         }
-                        notifyAlerters(status);
-                        setStatus(status);
+                        notifyAlerters(currentStatus);
+                        setStatus(currentStatus);
                         log.info("Flushed. Now waiting {} seconds for next run.", SECONDS_BETWEEN_SCHEDULED_RUNS);
                         scheduled_monitor_running = false;
                     } catch (Exception e) {
@@ -93,29 +93,36 @@ public class ScheduledMonitorManager {
         }
     }
 
-    synchronized void notifyAlerters(Status status) {
-        if (status != null) {
+    synchronized void notifyAlerters(Status currentStatus) {
+        if (currentStatus != null) {
             for (Alerter alerter : alerters) {
                 if (alerter.isAlertingEnabled()) {
                     String serviceName = getProperty("service_name");
                     String environment = getProperty("environment");
-                    if (status == Status.OK) {
-                        String message = "Integration OK on" + serviceName + " in " + environment + ". Status is " + status.toString();
-                        log.trace("Sending alert: {}", message);
-                        alerter.notifyRevival(message);
+                    if (currentStatus == Status.OK) {
+                        if (lastKnownStatus == Status.NOT_RUN_YET || lastKnownStatus == Status.OK) {
+                            //no need to notify.
+                        } else {
+                            String message = "Integration OK on" + serviceName + " in " + environment + ". Status is " + currentStatus.toString();
+                            log.trace("Sending revival alert: {}", message);
+                            alerter.notifyRevival(message);
+                        }
                     } else {
-                        String message = "Integration Failed on" + serviceName + " in " + environment + ". Status is " + status.toString();
-                        log.trace("Sending alert: {}", message);
-                        alerter.notifyFailure(message);
+                        if (lastKnownStatus == Status.NOT_RUN_YET || lastKnownStatus == Status.OK) {
+                            String message = "Integration Failed on" + serviceName + " in " + environment + ". Status is " + currentStatus.toString();
+                            log.trace("Sending failure alert: {}", message);
+                            alerter.notifyFailure(message);
+                        } else {
+                            //repeat alerting is not implemented.
+                        }
                     }
                 }
             }
         }
-        //TODO boolean lastKnowStatus =
     }
 
     synchronized void setStatus(Status status) {
-        this.status = status;
+        this.lastKnownStatus = status;
     }
 
     public Instant getLastSuccessfulConnect() {
@@ -135,6 +142,6 @@ public class ScheduledMonitorManager {
     }
 
     public Status getStatus() {
-        return status;
+        return lastKnownStatus;
     }
 }

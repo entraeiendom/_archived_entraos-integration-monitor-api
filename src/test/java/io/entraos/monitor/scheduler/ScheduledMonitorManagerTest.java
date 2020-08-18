@@ -42,6 +42,7 @@ public class ScheduledMonitorManagerTest {
     public void notifyAlertersFromOkToFailedToOk() {
         when(alerter.isAlertingEnabled()).thenReturn(true);
         manager.notifyAlerters(Status.FAILED);
+        manager.setStatus(Status.FAILED);
         verify(alerter, times(1)).isAlertingEnabled();
         verify(alerter, times(1)).notifyFailure(anyString());
         manager.notifyAlerters(Status.OK);
