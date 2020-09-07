@@ -1,3 +1,5 @@
+[![Build Status](https://jenkins.entraos.io/buildStatus/icon?job=entraos-integration-monitor-api)](https://jenkins.entraos.io/job/entraos-integration-monitor-api/)
+
 # entraos-integration-monitor-api
 Generic monitor observing that integration between services do work.
 
