@@ -5,7 +5,7 @@
 
   <groupId>io.entraos.monitor</groupId>
   <artifactId>integration-monitor</artifactId>
-  <version>0.6.5-SNAPSHOT</version>
+  <version>0.6.5</version>
 
   <name>entraos-integration-monitor</name>
   <url>https://github.com/entraeiendom/entraos-integration-monitor-api</url>
@@ -31,7 +31,7 @@
     <developerConnection>scm:git:ssh://git@github.com/entraeiendom/entraos-integration-monitor-api.git</developerConnection>
     <connection>scm:git:https://github.com/entraeiendom/entraos-integration-monitor-api.git</connection>
     <url>https://github.com/entraeiendom/entraos-integration-monitor-api.git</url>
-    <tag>HEAD</tag>
+    <tag>integration-monitor-0.6.5</tag>
   </scm>
 
   <dependencies>
@@ -337,7 +337,7 @@
                     <Main-Class>${mainClass}</Main-Class>
                   </manifestEntries>
                 </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 
                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/spring.handlers</resource>
