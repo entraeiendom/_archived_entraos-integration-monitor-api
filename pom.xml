@@ -5,7 +5,7 @@
 
   <groupId>io.entraos.monitor</groupId>
   <artifactId>integration-monitor</artifactId>
-  <version>0.6.7</version>
+  <version>0.6.8-SNAPSHOT</version>
 
   <name>entraos-integration-monitor</name>
   <url>https://github.com/entraeiendom/entraos-integration-monitor-api</url>
@@ -31,7 +31,7 @@
     <developerConnection>scm:git:ssh://git@github.com/entraeiendom/entraos-integration-monitor-api.git</developerConnection>
     <connection>scm:git:https://github.com/entraeiendom/entraos-integration-monitor-api.git</connection>
     <url>https://github.com/entraeiendom/entraos-integration-monitor-api.git</url>
-    <tag>integration-monitor-0.6.7</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
