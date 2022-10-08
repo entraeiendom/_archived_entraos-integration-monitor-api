@@ -22,7 +22,7 @@
     <jetty.version>9.4.49.v20220914</jetty.version>
     <jersey.version>2.37</jersey.version>
 
-    <spring.version>5.3.22</spring.version>
+    <spring.version>5.3.23</spring.version>
     <maven.javadoc.skip>true</maven.javadoc.skip>
 
   </properties>
