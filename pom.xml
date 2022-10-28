@@ -20,7 +20,7 @@
     <slf4j.version>2.0.3</slf4j.version>
     <metrics.version>4.1.2</metrics.version>
     <jetty.version>9.4.49.v20220914</jetty.version>
-    <jersey.version>2.37</jersey.version>
+    <jersey.version>3.0.8</jersey.version>
 
     <spring.version>5.3.23</spring.version>
     <maven.javadoc.skip>true</maven.javadoc.skip>
