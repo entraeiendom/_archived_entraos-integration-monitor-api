@@ -19,8 +19,8 @@
     <microservice.config>0.4.16</microservice.config>
     <slf4j.version>2.0.7</slf4j.version>
     <metrics.version>4.1.2</metrics.version>
-    <jetty.version>9.4.50.v20221201</jetty.version>
-    <jersey.version>2.38</jersey.version>
+    <jetty.version>9.4.51.v20230217</jetty.version>
+    <jersey.version>3.0.10</jersey.version>
 
     <spring.version>5.3.24</spring.version>
     <maven.javadoc.skip>true</maven.javadoc.skip>
