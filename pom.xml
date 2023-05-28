@@ -16,7 +16,7 @@
     <mainClass>io.entraos.monitor.Main</mainClass>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <microservice.config>0.4.16</microservice.config>
+    <microservice.config>0.4.17</microservice.config>
     <slf4j.version>2.0.7</slf4j.version>
     <metrics.version>4.1.2</metrics.version>
     <jetty.version>9.4.50.v20221201</jetty.version>
